@@ -1,6 +1,5 @@
 import socket
 import argparse
-
 #### arg parse 
 #### run by using puthon3 client.py <host> <port>
 host = "127.0.0.1"  #default host
@@ -14,24 +13,42 @@ port = int(args.port)
 print(f"Server host: {host}, port: {port}")
 
 
+udpserver = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+udpserver.connect((host,port))
+print("UDP Server connect success")
 
 
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 print("Start to connect")
-s.connect((host,port))
+server.connect((host,port))
 print("Connected Success")
-print(s.recv(1024).decode())
+print(server.recv(1024).decode())
+
+rannum = str()
 
 while True :
-    print(s.recv(1024).decode(),end="")
-    cmd = input()
+    cmd = input("% ")
     while len(cmd) == 0:
         cmd = input()
-    s.send(cmd.encode())
-    response = s.recv(1024).decode()
-    print(response)
-    if response == "exit":
-        print("Exit.")
-        s.close()
-        break
+    if "register" in cmd or "whoami" in cmd:
+        if "whoami" in cmd:
+            cmd = cmd + f" {rannum}"
+        udpserver.sendto(cmd.encode(),(host,port))
+        response,address = udpserver.recvfrom(1024)
+        response = response.decode()
+        print(response)
+    else :
+        server.send(cmd.encode())
+        response = server.recv(1024).decode()
+        if "login" in cmd:
+            response = response.split("$")
+            if len(response) > 1:
+                rannum = response[1]
+                print(rannum)
+            response = response[0]
+        print(response)
+        if response == "exit":
+            server.close()
+            break
 
