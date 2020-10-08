@@ -88,9 +88,9 @@ class BBS_sever(threading.Thread):
                 return f"Bye, {username}"
         elif cmd[0] == "list-user":
             data = self.db.print()
-            ret = "Name        Email\n"
+            ret = "{:<12s}{:<12s}".format("Name","Email")+"\n"
             for item in data:
-                ret += item[0]+"      "+item[1]+"\n"
+                ret += "{:<12s}{:<12s}".format(item[0],item[1])+"\n"
             return ret
         elif cmd[0] == "exit":
             return "exit"
