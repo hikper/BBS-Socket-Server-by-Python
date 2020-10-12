@@ -45,7 +45,6 @@ while True :
             response = response.split("$")
             if len(response) > 1:
                 rannum = response[1]
-                print(rannum)
             response = response[0]
         print(response)
         if response == "exit":

@@ -47,7 +47,7 @@ class BBS_sever(threading.Thread):
                 if response == "exit":
                     self.client.close()
                     break
-        except (ConnectionResetError,ConnectionAbortedError):
+        except (ConnectionResetError,ConnectionAbortedError,BrokenPipeError):
             print(f"Client {str(self.address)} shut down unexceptedly.")
             self.client.close()
 
