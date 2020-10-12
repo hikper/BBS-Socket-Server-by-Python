@@ -46,8 +46,8 @@ while True :
             if len(response) > 1:
                 rannum = response[1]
             response = response[0]
-        print(response)
         if response == "exit":
             server.close()
             break
+        print(response)
 

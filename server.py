@@ -11,10 +11,8 @@ import random
 host = "127.0.0.1"      #default host
 port = 49155            #default port
 argp = argparse.ArgumentParser()
-argp.add_argument("host")
 argp.add_argument("port")
 args = argp.parse_args()
-host = str(args.host)
 port = int(args.port)
 print(f"Server host: {host}, port: {port}")
 
