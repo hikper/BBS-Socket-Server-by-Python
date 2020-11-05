@@ -1,4 +1,5 @@
 from database import UserData
+from board import *
 import socket
 import sys
 import os
@@ -52,6 +53,7 @@ class BBS_sever(threading.Thread):
     def response(self, cmd, client):
         if cmd == "":
             return "400 Error Bad request!"
+        raw = cmd
         cmd = cmd.split(" ")
         if  len(cmd) == 0:
             return f"Unable to recognize {str(len(cmd))}"
@@ -90,11 +92,52 @@ class BBS_sever(threading.Thread):
             for item in data:
                 ret += "{:<12s}{:<12s}".format(item[0],item[1])+"\n"
             return ret
+        elif cmd[0] == "create-board":
+            try:
+                name = cmd[1]
+            except (AttributeError,IndexError):
+                return "Usage: create-board <name>"
+            return create_board(name,self.username)
+        elif cmd[0] == "create-post":
+            return create_post(raw,self.username)
+        elif cmd[0] == "list-board":
+            return list_board()
+        elif cmd[0] == "list-post":
+            try:
+                board = cmd[1]
+            except (AttributeError,IndexError):
+                return "Usage: list-post <board-name>"
+            return list_post(board)
+        elif cmd[0] == "read":
+            try:
+                sn = int(cmd[1])
+            except (AttributeError,IndexError):
+                return "Usage: read <post-S/N>"
+            return read_post(sn)
+        elif cmd[0] == "delete-post":
+            try:
+                sn = int(cmd[1])
+            except (AttributeError,IndexError):
+                return "Usage: delete-post <post-S/N>"
+            return delete_post(sn,self.username)
+        elif cmd[0] == "update-post":
+            try:
+                sn = int(cmd[1])
+            except (AttributeError,IndexError):
+                return "Usage: update-post <post-S/N> --title/content <new>"
+            return update_post(sn,self.username,raw)
+        elif cmd[0] == "comment":
+            try:
+                sn = int(cmd[1])
+            except (AttributeError,IndexError):
+                return "Usage: comment <post-S/N> <comment>"
+            return make_comment(sn,self.username,raw)
         elif cmd[0] == "exit":
             return "exit"
         else:
             print(f"can not handle cmd {cmd}")
         return "What?"
+
     def insert_randomlist(self,username):
         rannum = str(random.random())
         while randomdict.get(rannum) != None:
