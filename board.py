@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 from datetime import date
 import re
+import threading
 
 board_list = dict()
 post_list = dict()
-
 board_index_cnt = 1
 post_sn_cnt = 1
+
+
+#implement mutually exclusive shared memory global variable
+board_list_lock = threading.Lock()
+post_list_lock = threading.Lock()
+board_index_cnt_lock = threading.Lock()
+post_sn_cnt_lock = threading.Lock()
+
+
 class Board:
     def __init__(self,index,name,moderator):
         self.index = index
@@ -41,13 +50,18 @@ def post_cmd_parse(text):
 
 
 def create_board(name,moderator):
+
     global board_index_cnt
     if moderator == "":
         return "Please login first."
     if board_list.get(name) != None:
         return "Board already exists."
+    board_index_cnt_lock.acquire()
+    board_list_lock.acquire()
     board_list[name] = Board(board_index_cnt,name,moderator)
     board_index_cnt += 1
+    board_list_lock.release()
+    board_index_cnt_lock.release()
     return "Create board successfully."
 
 def list_board():
@@ -63,9 +77,14 @@ def create_post(raw,author):
         return "Please login first."
     if board_list.get(board_name) == None:
         return "Board does not exist."
+    post_sn_cnt_lock.acquire()
+    post_list_lock.acquire()
     post_list[post_sn_cnt] = Post(post_sn_cnt,board_name,title,author,get_date(),content)
     board_list[board_name].post_list.append(post_sn_cnt)
     post_sn_cnt += 1
+    
+    post_sn_cnt_lock.release()
+    post_list_lock.release()
     return "Create post successfully."
 
 def list_post(board_name):

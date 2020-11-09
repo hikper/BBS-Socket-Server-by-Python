@@ -17,7 +17,7 @@ args = argp.parse_args()
 port = int(args.port)
 print(f"Server host: {host}, port: {port}")
 
-#### radom generate num
+#### random generate num
 randomdict = dict()
 
 
@@ -40,7 +40,7 @@ class BBS_sever(threading.Thread):
         try:
             while True:
                 cmd = self.client.recv(1024).decode()
-                print("From "+str(self.address)+" received message : "+cmd)
+                # print("From "+str(self.address)+" received message : "+cmd)
                 response = self.response(cmd, self.client)
                 self.client.send(response.encode())
                 if response == "exit":
