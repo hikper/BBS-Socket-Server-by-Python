@@ -151,9 +151,9 @@ class BBS_sever(threading.Thread):
         elif cmd[0] == "list-chatroom":
             if self.username == "":
                 return "Please login first."
-            ret = "{:<16s}{:<16s}".format("Chatroom_name","Status")+"\n"
+            ret = "{:<16s}{:<16s}".format("Chatroom_name","Status")
             for key in chatroom_dict:
-                ret += "{:<16s}{:<16s}".format(chatroom_dict[key][0],chatroom_dict[key][3])+"\n"
+                ret += "\n"+"{:<16s}{:<16s}".format(chatroom_dict[key][0],chatroom_dict[key][3])
             return ret
         elif cmd[0] == "join-chatroom":
             if self.username == "":

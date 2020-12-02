@@ -39,6 +39,10 @@ attach = False
 server_running = False
 chatroom = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
+def get_time():
+    today = datetime.now()
+    res = today.strftime("%H:%M")
+    return res
 
 class chatroom_server(threading.Thread):
     def __init__(self,client,address):
@@ -111,30 +115,13 @@ class chatroom_listen(threading.Thread):
         # print(f"lister is end!!!")
 
 
-
-
-
-        
-
-
-
-
-
-
 myname = str()
 while True :
     if attach == False:
         cmd = input("% ")
         while len(cmd) == 0:
             cmd = input()
-        if "register" in cmd or "whoami" in cmd:
-            if "whoami" in cmd:
-                cmd = cmd + f" {rannum}"
-            udpserver.sendto(cmd.encode(),(host,port))
-            response,address = udpserver.recvfrom(1024)
-            response = response.decode()
-            print(response)
-        if "attach" in cmd:
+        if "attach" == cmd:
             if rannum == "":
                 print("Please login first.")
             if server_running == False:
@@ -143,6 +130,13 @@ while True :
             for item in history:
                 print(item)
             attach = True
+        elif "register" in cmd or "whoami" in cmd:
+            if "whoami" in cmd:
+                cmd = cmd + f" {rannum}"
+            udpserver.sendto(cmd.encode(),(host,port))
+            response,address = udpserver.recvfrom(1024)
+            response = response.decode()
+            print(response)
         else :
             server.send(cmd.encode())
             response = server.recv(1024).decode()
@@ -162,7 +156,7 @@ while True :
                 # print("start to create chatroom…")
                 chatroom_server_set_up(chatroom_addr,chatroom_port).start()
                 server_running = True
-                time.sleep(1)
+                time.sleep(0.1)
                 chatroom.connect((chatroom_addr,chatroom_port))
                 chatroom_listen(chatroom).start()
                 continue
@@ -171,9 +165,7 @@ while True :
                 attach = True
                 chatroom.connect((response.split()[5],int(response.split()[6])))
                 chatroom_listen(chatroom).start()
-                today = datetime.now()
-                res = today.strftime("%H:%M")
-                chatroom.send(f"sys [{res}] : {myname} join us.".encode())
+                chatroom.send(f"sys [{get_time()}] : {myname} join us.".encode())
                 
                 continue
 
@@ -181,29 +173,27 @@ while True :
     else:
         try:
             cmd = input("")
-            today = datetime.now()
-            res = today.strftime("%H:%M")
-            if "detach" in cmd and server_running == True:
+            if "detach" == cmd and server_running == True:
                 print("Welcome back to BBS.")
                 attach = False
-            elif "leave-chatroom" in cmd:
+            elif "leave-chatroom" == cmd:
                 if server_running == True:
                     server.send(cmd.encode())
                     response = server.recv(1024).decode()
-                    chatroom.send(f"sys[{res}] : the chatroom is close".encode())
+                    chatroom.send(f"sys[{get_time()}] : the chatroom is close".encode())
                     chatroom.close()
                     chatroom = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                     chatter = list()
                 else:
-                    chatroom.send(f"sys [{res}] : {myname} leave us.".encode())
+                    chatroom.send(f"sys [{get_time()}] : {myname} leave us.".encode())
                     chatroom.close()
                     chatroom = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                 server_running = False
                 attach = False
             else:
-                cmd = f"{myname}[{res}]: {cmd}"
+                cmd = f"{myname}[{get_time()}]: {cmd}"
                 # print(f"check send mes {cmd}")
                 chatroom.send(cmd.encode())
         except BrokenPipeError:
-            print("Chatroom connection has beeen lost")
+            print("Chatroom connection has been lost")
         
