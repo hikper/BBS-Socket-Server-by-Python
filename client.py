@@ -118,9 +118,9 @@ class chatroom_listen(threading.Thread):
 myname = str()
 while True :
     if attach == False:
-        cmd = input("% ")
-        while len(cmd) == 0:
-            cmd = input()
+        print("% ",end="")
+    cmd = input()
+    if attach == False:
         if "attach" == cmd:
             if rannum == "":
                 print("Please login first.")
@@ -172,7 +172,6 @@ while True :
             print(response)
     else:
         try:
-            cmd = input("")
             if "detach" == cmd and server_running == True:
                 print("Welcome back to BBS.")
                 attach = False
@@ -180,7 +179,7 @@ while True :
                 if server_running == True:
                     server.send(cmd.encode())
                     response = server.recv(1024).decode()
-                    chatroom.send(f"sys[{get_time()}] : the chatroom is close".encode())
+                    chatroom.send(f"sys [{get_time()}] : the chatroom is close".encode())
                     chatroom.close()
                     chatroom = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                     chatter = list()
@@ -195,5 +194,6 @@ while True :
                 # print(f"check send mes {cmd}")
                 chatroom.send(cmd.encode())
         except BrokenPipeError:
+            attach = False
             print("Chatroom connection has been lost")
         
