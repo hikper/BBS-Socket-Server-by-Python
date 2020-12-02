@@ -20,6 +20,9 @@ print(f"Server host: {host}, port: {port}")
 #### random generate num
 randomdict = dict()
 
+#### chatroom_dict
+chatroom_dict = dict()
+
 
 
 class BBS_sever(threading.Thread):
@@ -78,6 +81,8 @@ class BBS_sever(threading.Thread):
         elif cmd[0] == "logout":
             if self.username == "":
                 return "Please login first."
+            elif chatroom_dict.get(self.username) != None and chatroom_dict[self.username][3] == "open":
+                return "Please do “attach” and “leave-chatroom” first."
             else:
                 username = self.username
                 self.username = ""
@@ -132,6 +137,46 @@ class BBS_sever(threading.Thread):
             except (AttributeError,IndexError):
                 return "Usage: comment <post-S/N> <comment>"
             return make_comment(sn,self.username,raw)
+        elif cmd[0] == "create-chatroom":
+            if self.username == "":
+                return "Please login first."
+            if chatroom_dict.get(self.username) != None:
+                return "User has already created the chatroom."
+            try:
+                chatroom = [self.username, self.address, cmd[1], "open"]
+                chatroom_dict[self.username] = chatroom
+            except (AttributeError,IndexError):
+                return "Usage: create-chatroom <port>"
+            return "start to create chatroom…"+" "+str(self.address[0])+" "+str(cmd[1])
+        elif cmd[0] == "list-chatroom":
+            if self.username == "":
+                return "Please login first."
+            ret = "{:<16s}{:<16s}".format("Chatroom_name","Status")+"\n"
+            for key in chatroom_dict:
+                ret += "{:<16s}{:<16s}".format(chatroom_dict[key][0],chatroom_dict[key][3])+"\n"
+            return ret
+        elif cmd[0] == "join-chatroom":
+            if self.username == "":
+                return "Please login first."
+            try:
+                chatname = cmd[1]
+            except (AttributeError,IndexError):
+                return "Usage: join-chatroom <chatroom_name>"
+            if chatroom_dict.get(chatname) == None or chatroom_dict[chatname][3] != "open":
+                return "The chatroom does not exist or the chatroom is close."
+            return "Action: connection to chatroom server. "+str(chatroom_dict[chatname][1][0])+" "+str(chatroom_dict[chatname][2])
+        elif cmd[0] == "leave-chatroom":
+            chatroom_dict[self.username][3] = "close"
+            return "close"
+        elif cmd[0] == "restart-chatroom":
+            if self.username == "":
+                return "Please login first."
+            elif chatroom_dict.get(self.username) == None:
+                return "Please create-chatroom first."
+            elif chatroom_dict[self.username][3] == "open":
+                return "Your chatroom is still running."
+            chatroom_dict[self.username][3] = "open"
+            return "start to create chatroom… "+f"{chatroom_dict[self.username][1][0]} {chatroom_dict[self.username][2]}"
         elif cmd[0] == "exit":
             return "exit"
         else:
