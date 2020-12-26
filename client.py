@@ -134,7 +134,10 @@ while True :
             if rannum == "":
                 print("Please login first.")
             if server_running == False:
-                print("Please create-chatroom first.")
+                if len(history) == 0:
+                    print("Please create-chatroom first.")
+                else:
+                    print("Please restart-chatroom first.")
             attach = True
             chatroom = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             chatroom.connect((chatroom_addr,chatroom_port))
